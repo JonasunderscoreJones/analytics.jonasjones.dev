@@ -1,2 +1,2 @@
-# analytics.jonasjones.dev
- analytics worker for jonasjones ecosystem
+# aka-worker
+ Cloudflare aka link worker for aka.jonasjones.dev
