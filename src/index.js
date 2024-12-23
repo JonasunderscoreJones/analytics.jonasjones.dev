@@ -50,8 +50,12 @@ export default {
 
 		const record = { timestamp, domain, method, path, country };
 
-		// Store the new record in the database
-		await this.storeRecordInDB(record, env);
+		try {
+			// Store the new record in the database
+			await this.storeRecordInDB(record, env);
+		} catch (error) {
+			return new Response('Error storing record in DB', { status: 500 });
+		}
 
 		return new Response('Recorded', { status: 200 });
 	  } catch (error) {
@@ -80,8 +84,12 @@ export default {
 
 		const record = { timestamp, domain, method, path, country };
 
-		// Store the new record in the database
-		await this.storeRecordInDB(record, env);
+		try {
+			// Store the new record in the database
+			await this.storeRecordInDB(record, env);
+		} catch (error) {
+			return new Response('Error storing record in DB', { status: 500 });
+		}
 
 		const origin = request.headers.get('Origin');
 		const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.includes('localhost');
@@ -151,13 +159,9 @@ export default {
 
 	// Store the new record in the database
 	async storeRecordInDB(record, env) {
-	  try {
 		await env.DB.prepare('INSERT INTO requests (timestamp, domain, method, path, country) VALUES (?, ?, ?, ?, ?)')
-		  .bind(record.timestamp, record.domain, record.method, record.path, record.country)
-		  .run();
-	  } catch (error) {
-		console.error('Error storing record in DB:', error);
-	  }
+			.bind(record.timestamp, record.domain, record.method, record.path, record.country)
+			.run();
 	},
 
 	// Retrieve filtered records from the database
