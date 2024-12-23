@@ -10,6 +10,11 @@ workers_dev = true
 binding = "CDN_BUCKET"
 bucket_name = "cdn"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "REQUESTS"
+database_id = "665c17d4-250a-4a6d-8317-9b4522c7842f"
+
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
 # Docs: https://developers.cloudflare.com/workers/platform/environment-variables
