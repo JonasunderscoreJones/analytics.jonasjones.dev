@@ -1,3 +1,4 @@
+DO NOT EXECUTE!!!!
 DROP TABLE IF EXISTS requests;
 CREATE TABLE IF NOT EXISTS requests (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME, domain TEXT, method TEXT, path TEXT, country TEXT);
 INSERT INTO requests (timestamp, domain, method, path, country)
