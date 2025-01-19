@@ -9,7 +9,7 @@ export default {
 	  } else if (url.pathname === '/requests/get/count') {
 		return this.handleGetCountRequest(request, env);
 	  } else if (url.pathname.startsWith('/requests/get')) {
-		return this.handleGetRequest(url);
+		return this.handleGetRequest(url, env);
 	  } else if (request.method === 'OPTIONS') {
 		return this.handleOptions(request);
 	  }
@@ -137,7 +137,7 @@ export default {
 	},
 
 	// Handle GET requests with filters (start, end, count, etc.)
-	async handleGetRequest(url) {
+	async handleGetRequest(url, env) {
 	  const params = new URLSearchParams(url.search);
 
 	  const start = parseInt(params.get('start')) || 0;
@@ -168,34 +168,38 @@ export default {
 	async getRecordsFromDB(env, start, end, domain, method, path, country, offset, count) {
 	  try {
 		const query = `
-		  SELECT * FROM requests
-		  WHERE timestamp >= ? AND timestamp <= ?
-		  ${domain ? 'AND domain = ?' : ''}
-		  ${method ? 'AND method = ?' : ''}
-		  ${path ? 'AND path = ?' : ''}
-		  ${country ? 'AND country = ?' : ''}
-		  ORDER BY timestamp DESC
-		  LIMIT ? OFFSET ?
+			SELECT * FROM requests
+			WHERE timestamp >= ? AND timestamp <= ?
+			${domain ? 'AND domain = ?' : ''}
+			${method ? 'AND method = ?' : ''}
+			${path ? 'AND path = ?' : ''}
+			${country ? 'AND country = ?' : ''}
+			ORDER BY timestamp DESC
+			LIMIT ? OFFSET ?
 		`;
-		const params = [
-		  start,
-		  end,
-		  domain,
-		  method,
-		  path,
-		  country,
-		  count,
-		  offset,
-		].filter(param => param !== undefined);
+
+		const params = [start, end];
+
+		if (domain) params.push(domain);
+		if (method) params.push(method);
+		if (path) params.push(path);
+		if (country) params.push(country);
+
+		params.push(count, offset);
 
 		const records = await env.DB.prepare(query).bind(...params).all();
 
+		// Check if the result is an array and has data
+		if (!Array.isArray(records) || records.length === 0) {
+			return [];  // Return an empty array or handle the case where no records were found
+		}
+
 		return records.map(record => ({
-		  timestamp: record.timestamp,
-		  domain: record.domain,
-		  method: record.method,
-		  path: record.path,
-		  country: record.country,
+			timestamp: record.timestamp,
+			domain: record.domain,
+			method: record.method,
+			path: record.path,
+			country: record.country,
 		}));
 	  } catch (error) {
 		console.error('Error fetching records from DB:', error);
